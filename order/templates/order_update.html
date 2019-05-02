@@ -1,0 +1,45 @@
+{% extends 'index.html' %} {% load render_table from django_tables2 %}
+
+{% block content %}
+    <div class="page-wrapper">
+        <div class="page-breadcrumb">
+            <div class="row">
+                <div class="col-12 d-flex no-block align-items-center">
+                    <h4 class="page-title">{{ instance.date }} - {{ instance }}</h4>
+                    <div class="ml-auto text-right">
+                        <nav aria-label="breadcrumb">
+                            <ol class="breadcrumb">
+                                <li class="breadcrumb-item"><a href="{% url 'homepage' %}">Home</a></li>
+                                <li class="breadcrumb-item active" aria-current="page">{{ instance }}</li>
+                            </ol>
+                        </nav>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">Products</h5>
+                            {% include 'include/product_container.html' %}
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="card">
+                        <div id='order_item_container' class="card-body">
+                            {% include 'include/order_container.html' %}
+                        </div>
+                    </div>
+            </div>
+        </div>
+        </div>
+    </div>
+
+{% endblock %}
+
+{% block extra_js %}
+    {% include 'include/ajax_calls.html' %}
+{% endblock %}

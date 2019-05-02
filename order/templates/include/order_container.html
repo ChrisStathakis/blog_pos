@@ -1,0 +1,34 @@
+{% load render_table from django_tables2 %}
+<h5 class="card-title">Order Detail</h5>
+<div class="table-responsive">
+    {% render_table order_items %}
+</div>
+<div class="col-md-12">
+    <div class="pull-right m-t-30 text-right">
+        <p>Value: {{ instance.tag_value }}</p>
+        <p>Discount  : {{ instance.tag_discount }} </p>
+        <hr>
+        <h3><b>Total :</b> {{ instance.tag_final_value }}</h3>
+    </div>
+    <div class="clearfix"></div>
+    <hr>
+    <div class="text-right">
+        <button class="btn btn-danger" type="submit"> Done </button>
+    </div>
+</div>
+<script>
+    $('.edit_button').click(function (evt) {
+        evt.preventDefault();
+        const btn = $(this);
+        const url = btn.attr('data-href');
+        $.ajax({
+            method: 'GET',
+            url: url,
+            dataType: 'json',
+
+            success: function (data) {
+                $('#order_item_container').html(data.result)
+            }
+        })
+    });
+</script>

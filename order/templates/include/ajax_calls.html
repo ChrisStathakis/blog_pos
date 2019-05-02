@@ -1,0 +1,47 @@
+
+<script type="text/javascript">
+    $('.add_button').click(function (evt) {
+        evt.preventDefault();
+        const btn = $(this);
+        const url = btn.attr('data-href');
+        $.ajax({
+            method: 'GET',
+            dataType: 'json',
+            url: url,
+            success : function (data) {
+                $('#order_item_container').html(data.result)
+            }
+        })
+    });
+    
+    $('.edit_button').click(function (evt) {
+        evt.preventDefault();
+        const btn = $(this);
+        const url = btn.attr('data-href');
+        $.ajax({
+            method: 'GET',
+            url: url,
+            dataType: 'json',
+
+            success: function (data) {
+                $('#order_item_container').html(data.result)
+            }
+        })
+    });
+
+    $('.search_button').keyup(function (evt) {
+        evt.preventDefault();
+        const btn = $(this);
+        const val = btn.val();
+        const url = btn.attr('data-href');
+        $.ajax({
+            method:'GET',
+            dataType: 'json',
+            url: url,
+
+            success: function (data) {
+                $('#product_cotainer').html(data.products)
+            }
+        })
+    })
+</script>

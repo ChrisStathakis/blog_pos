@@ -1,0 +1,135 @@
+{% extends 'index.html' %} {% load render_table from django_tables2 %} {% load static %}
+
+{% block content %}
+<div class="page-wrapper">
+        <div class="page-breadcrumb">
+            <div class="row">
+                <div class="col-12 d-flex no-block align-items-center">
+                    <h4 class="page-title">Order List</h4>
+                    <div class="ml-auto text-right">
+                        <nav aria-label="breadcrumb">
+                            <ol class="breadcrumb">
+                                <li class="breadcrumb-item"><a href="{% url 'homepage' %}">Home</a></li>
+                                <li class="breadcrumb-item active" aria-current="page">List</li>
+                            </ol>
+                        </nav>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-md-8">
+                    <div class="card">
+                        <div class="card-body">
+                            <h4 class="card-title">Latest Orders</h4>
+                        </div>
+                        <div class="comment-widgets scrollable">
+                            {% render_table orders %}
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card">
+                        <div class="card-header"><h4>Filters</h4></div>
+                        <div class="card-body">
+                            <form class="form" method="get">
+                                <div class="form-group row">
+                                        <label for="search_name" class="col-sm-3 text-right control-label col-form-label">Search</label>
+                                        <div class="col-sm-9">
+                                            <input type="text"
+                                                   class="form-control"
+                                                   id="search_name"
+                                                   name="search_name"
+                                                   {% if request.GET.search_name %} value="{{ request.GET.search_name }}" {% else %}
+                                                    placeholder="Search Here" {% endif %}
+                                            >
+                                        </div>
+                                </div>
+                                <br>
+                                <label>Datepicker</label>
+                                <div class="input-group">
+                                    <input
+                                            name="date_start"
+                                            type="text"
+                                            class="form-control mydatepicker"
+                                            {% if request.GET.date_start %}
+                                            value="{{ request.GET.date_start }}"
+                                            {% else %}
+                                            placeholder="mm/dd/yyyy"
+                                            {% endif %}
+                                    >
+                                    <div class="input-group-append">
+                                        <span class="input-group-text"><i class="fa fa-calendar"></i></span>
+                                    </div>
+                                </div>
+                                <label class="m-t-15">Autoclose Datepicker</label>
+                                <div class="input-group">
+                                    <input
+                                            name="date_end"
+                                            type="text"
+                                            class="form-control"
+                                            id="datepicker-autoclose"
+                                            {% if request.GET.date_end %}
+                                            value="{{ request.GET.date_end }}"
+                                            {% else %}
+                                            placeholder="mm/dd/yyyy"
+                                            {% endif %}
+                                    >
+                                    <div class="input-group-append">
+                                        <span class="input-group-text"><i class="fa fa-calendar"></i></span>
+                                    </div>
+                                </div>
+                                <br>
+                                <button type="submit" class="btn btn-success">Submit</button>
+                                <a href="{{ request.path }}" class="btn btn-warning">Reset</a>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+    <script src="{% static 'assets/libs/bootstrap-datepicker/dist/js/bootstrap-datepicker.min.js' %}"></script>
+<script>
+        /*colorpicker*/
+        $('.demo').each(function() {
+        //
+        // Dear reader, it's actually very easy to initialize MiniColors. For example:
+        //
+        //  $(selector).minicolors();
+        //
+        // The way I've done it below is just for the demo, so don't get confused
+        // by it. Also, data- attributes aren't supported at this time...they're
+        // only used for this demo.
+        //
+        $(this).minicolors({
+                control: $(this).attr('data-control') || 'hue',
+                position: $(this).attr('data-position') || 'bottom left',
+
+                change: function(value, opacity) {
+                    if (!value) return;
+                    if (opacity) value += ', ' + opacity;
+                    if (typeof console === 'object') {
+                        console.log(value);
+                    }
+                },
+                theme: 'bootstrap'
+            });
+
+        });
+        /*datwpicker*/
+        jQuery('.mydatepicker').datepicker();
+        jQuery('#datepicker-autoclose').datepicker({
+            autoclose: true,
+            todayHighlight: true
+        });
+        var quill = new Quill('#editor', {
+            theme: 'snow'
+        });
+
+    </script>
+{% endblock %}
