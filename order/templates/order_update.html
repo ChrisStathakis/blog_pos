@@ -21,8 +21,12 @@
             <div class="row">
                 <div class="col-md-6">
                     <div class="card">
-                        <div class="card-body">
+                        <div class="header">
                             <h5 class="card-title">Products</h5>
+                            <input data-href='{% url "ajax-search" instance.id %}' type="text" class="form-control search_button" placeholder="Search">
+                        </div>
+                        <div class="card-body" id="product_container">
+
                             {% include 'include/product_container.html' %}
                         </div>
                     </div>
@@ -31,6 +35,17 @@
                     <div class="card">
                         <div id='order_item_container' class="card-body">
                             {% include 'include/order_container.html' %}
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="header">Edit</div>
+                        <div class="card-body">
+                            <form method="post" class="form">{% csrf_token %}
+                                {{ form }}
+                                <br>
+                                <button type="submit" class="btn btn-success">Save</button>
+                            </form>
                         </div>
                     </div>
             </div>

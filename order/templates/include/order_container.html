@@ -13,7 +13,8 @@
     <div class="clearfix"></div>
     <hr>
     <div class="text-right">
-        <button class="btn btn-danger" type="submit"> Done </button>
+        <a href="{% url 'done_order' instance.id %}" class="btn btn-success" type="submit"> Done </a>
+        <a onclick="return confirm('Are you sure?')" href="{% url 'delete_order' instance.id %}" class="btn btn-danger">Delete</a>
     </div>
 </div>
 <script>

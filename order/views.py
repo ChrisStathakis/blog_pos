@@ -32,7 +32,8 @@ class HomepageView(ListView):
         paid_value = orders.filter(is_paid=True).aggregate(Sum('final_value'))['final_value__sum']\
             if orders.filter(is_paid=True).exists() else 0
         remaining = total_sales - paid_value
-        paid_percent, remain_percent = round((paid_value/total_sales)*100, 1), round((remaining/total_sales)*100, 1)
+        diviner = total_sales if total_sales > 0 else 1
+        paid_percent, remain_percent = round((paid_value/diviner)*100, 1), round((remaining/diviner)*100, 1)
         total_sales = f'{total_sales} {CURRENCY}'
         paid_value = f'{paid_value} {CURRENCY}'
         remaining = f'{remaining} {CURRENCY}'
@@ -91,6 +92,9 @@ class OrderUpdateView(UpdateView):
     form_class = OrderEditForm
     success_url = reverse_lazy('homepage')
 
+    def get_success_url(self):
+        return reverse('update_order', kwargs={'pk': self.object.id})
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         instance = get_object_or_404(Order, pk=self.kwargs['pk'])
@@ -112,6 +116,14 @@ def delete_order(request, pk):
 
 
 @staff_member_required
+def done_order_view(request, pk):
+    instance = get_object_or_404(Order, id=pk)
+    instance.is_paid = True
+    instance.save()
+    return redirect(reverse('homepage'))
+
+
+@staff_member_required
 def ajax_add_product(request, pk, dk):
     instance = get_object_or_404(Order, id=pk)
     product = get_object_or_404(Product, id=dk)
@@ -123,6 +135,8 @@ def ajax_add_product(request, pk, dk):
     else:
         order_item.qty += 1
     order_item.save()
+    product.qty -= 1
+    product.save()
     instance.refresh_from_db()
     order_items = OrderItemTable(instance.order_items.all())
     RequestConfig(request).configure(order_items)
@@ -139,12 +153,16 @@ def ajax_add_product(request, pk, dk):
 @staff_member_required
 def ajax_modify_order_item(request, pk, action):
     order_item = get_object_or_404(OrderItem, id=pk)
+    product = order_item.product
     instance = order_item.order
     if action == 'remove':
         order_item.qty -= 1
+        product.qty += 1
         if order_item.qty < 1: order_item.qty = 1
     if action == 'add':
         order_item.qty += 1
+        product.qty -= 1
+    product.save()
     order_item.save()
     if action == 'delete':
         order_item.delete()
@@ -163,15 +181,20 @@ def ajax_modify_order_item(request, pk, action):
 
 
 @staff_member_required
-def ajax_search_products(request):
+def ajax_search_products(request, pk):
+    instance = get_object_or_404(Order, id=pk)
     q = request.GET.get('q', None)
-    products = Product.objects.all().filter(title__startswith=q) if q else Product.objects.none()
+    print(q)
+    products = Product.broswer.active().filter(title__startswith=q) if q else Product.broswer.active()
     products = products[:12]
+    products = ProductTable(products)
+    RequestConfig(request).configure(products)
     data = dict()
-    data['products'] = render_to_string(template_name='',
+    data['products'] = render_to_string(template_name='include/product_container.html',
                                         request=request,
                                         context={
-                                            'products': products
+                                            'products': products,
+                                            'instance': instance
                                         })
     return JsonResponse(data)
 
@@ -185,3 +208,36 @@ def order_action_view(request, pk, action):
     if action == 'delete':
         instance.delete()
     return redirect(reverse('homepage'))
+
+
+@staff_member_required
+def ajax_calculate_results_view(request):
+    orders = Order.filter_data(request, Order.objects.all())
+    total_value, total_paid_value, remaining_value, data = 0, 0, 0, dict()
+    if orders.exists():
+        total_value = orders.aggregate(Sum('final_value'))['final_value__sum']
+        total_paid_value = orders.filter(is_paid=True).aggregate(Sum('final_value'))['final_value__sum'] if\
+            orders.filter(is_paid=True) else 0
+        remaining_value = total_value - total_paid_value
+    total_value, total_paid_value, remaining_value = f'{total_value} {CURRENCY}',\
+                                                     f'{total_paid_value} {CURRENCY}', f'{remaining_value} {CURRENCY}'
+    data['result'] = render_to_string(template_name='include/result_container.html',
+                                      request=request,
+                                      context=locals())
+    return JsonResponse(data)
+
+
+@staff_member_required
+def ajax_calculate_category_view(request):
+    orders = Order.filter_data(request, Order.objects.all())
+    order_items = OrderItem.objects.filter(order__in=orders)
+    category_analysis = order_items.values_list('product__category__title').annotate(qty=Sum('qty'),
+                                                                                      total_incomes=Sum('total_price')
+                                                                                      )
+    data = dict()
+    category, currency = True, CURRENCY
+    data['result'] = render_to_string(template_name='include/result_container.html',
+                                      request=request,
+                                      context=locals()
+                                      )
+    return JsonResponse(data)

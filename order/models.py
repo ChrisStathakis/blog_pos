@@ -2,12 +2,20 @@ from django.db import models
 from django.db.models import Sum
 from django.conf import settings
 from django.urls import reverse
+from django.dispatch import receiver
+from django.db.models.signals import pre_delete
 import datetime
 from product.models import Product
 
 from decimal import Decimal
 
 CURRENCY = settings.CURRENCY
+
+
+class OrderManager(models.Manager):
+
+    def active(self):
+        return self.filter(active=True)
 
 
 class Order(models.Model):
@@ -18,11 +26,16 @@ class Order(models.Model):
     discount = models.DecimalField(default=0.00, decimal_places=2, max_digits=20)
     final_value = models.DecimalField(default=0.00, decimal_places=2, max_digits=20)
     is_paid = models.BooleanField(default=True)
+    objects = models.Manager()
+    broswer = OrderManager()
+
+    class Meta:
+        ordering = ['-date']
 
     def save(self, *args, **kwargs):
         order_items = self.order_items.all()
         self.value = order_items.aggregate(Sum('total_price'))['total_price__sum'] if order_items.exists() else 0.00
-        self.final_value = self.value - self.discount
+        self.final_value = Decimal(self.value) - Decimal(self.discount)
         super().save(*args, **kwargs)
 
     def __str__(self):
@@ -57,7 +70,6 @@ class Order(models.Model):
         return queryset
 
 
-
 class OrderItem(models.Model):
     product = models.ForeignKey(Product, on_delete=models.PROTECT)
     order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name='order_items')
@@ -84,4 +96,18 @@ class OrderItem(models.Model):
 
     def tag_price(self):
         return f'{self.price} {CURRENCY}'
+
+
+@receiver(pre_delete, sender=Order)
+def delete_order(sender, instance, **kwargs):
+    items = instance.order_items.all()
+    for item in items:
+        item.delete()
+
+
+@receiver(pre_delete, sender=OrderItem)
+def delete_order_item(sender, instance, **kwargs):
+    product = instance.product
+    product.qty += instance.qty
+    product.save()
 

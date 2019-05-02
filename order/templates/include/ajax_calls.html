@@ -37,10 +37,10 @@
         $.ajax({
             method:'GET',
             dataType: 'json',
-            url: url,
+            url: url + '?q='+val,
 
             success: function (data) {
-                $('#product_cotainer').html(data.products)
+                $('#product_container').html(data.products)
             }
         })
     })

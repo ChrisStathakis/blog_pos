@@ -1,0 +1,42 @@
+{% if category %}
+<table class="table">
+    <thead>
+    <tr>
+        <th scope="col">Category</th>
+        <th scope="col">Qty</th>
+        <th scope="col">Incomes</th>
+    </tr>
+    </thead>
+    <tbody>
+        {% for category in category_analysis %}
+            <tr>
+                <td>{{ category.0 }}</td>
+                <td>{{ category.1 }}</td>
+                <td>{{ category.2 }} {{ currency }}</td>
+            </tr>
+        {% endfor %}
+
+</table>
+{% else %}
+<table class="table">
+    <thead>
+    <tr>
+        <th scope="col">Value</th>
+        <th scope="col">#</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr>
+        <td>Total Incomes</td>
+        <td>{{ total_value }}</td>
+    </tr>
+    <tr>
+        <td>Paid</td>
+        <td>{{ total_paid_value }}</td>
+    </tr>
+    <tr>
+        <td class="danger">Dept</td>
+        <td class="danger">{{ remaining_value }}</td>
+    </tr>
+</table>
+{% endif %}
