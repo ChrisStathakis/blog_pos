@@ -106,7 +106,6 @@
                     <ul id="sidebarnav" class="p-t-30">
                         <li class="sidebar-item"> <a class="sidebar-link waves-effect waves-dark sidebar-link" href="{% url 'homepage' %}" aria-expanded="false"><i class="mdi mdi-view-dashboard"></i><span class="hide-menu">Dashboard</span></a></li>
                         <li class="sidebar-item"> <a class="sidebar-link waves-effect waves-dark sidebar-link" href="{% url 'order_list' %}" aria-expanded="false"><i class="mdi mdi-border-inside"></i><span class="hide-menu">Order List</span></a></li>
-                        <li class="sidebar-item"> <a class="sidebar-link waves-effect waves-dark sidebar-link" href="charts.html" aria-expanded="false"><i class="mdi mdi-chart-bar"></i><span class="hide-menu">Charts</span></a></li>
                     </ul>
                 </nav>
                 <!-- End Sidebar navigation -->
@@ -173,10 +172,12 @@
                     <!-- Column -->
                     <div class="col-md-6 col-lg-3">
                         <div class="card card-hover">
+                            <a href="{% url 'create_auto' %}">
                             <div class="box bg-success text-center">
                                 <h1 class="font-light text-white"><i class="mdi mdi-chart-areaspline"></i></h1>
-                                <h6 class="text-white">Chart</h6>
+                                <h6 class="text-white">Create Auto</h6>
                             </div>
+                            </a>
                         </div>
                     </div>
                 </div>

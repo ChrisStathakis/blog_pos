@@ -13,6 +13,8 @@ from .forms import OrderCreateForm, OrderEditForm
 from product.models import Product, Category
 from .tables import ProductTable, OrderItemTable, OrderTable
 
+import datetime
+
 
 @method_decorator(staff_member_required, name='dispatch')
 class HomepageView(ListView):
@@ -21,8 +23,7 @@ class HomepageView(ListView):
     model = Order
 
     def get_queryset(self):
-        qs = Order.objects.all()
-
+        qs = Order.objects.all()[:10]
         return qs
 
     def get_context_data(self, **kwargs):
@@ -45,7 +46,11 @@ class HomepageView(ListView):
 
 @staff_member_required
 def auto_create_order_view(request):
-    new_order = Order.objects.create()
+    new_order = Order.objects.create(
+        title='Order 66',
+        date=datetime.datetime.now()
+
+    )
     return redirect(new_order.get_edit_url())
 
 

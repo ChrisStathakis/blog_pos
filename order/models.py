@@ -3,12 +3,11 @@ from django.db.models import Sum
 from django.conf import settings
 from django.urls import reverse
 from django.dispatch import receiver
-from django.db.models.signals import pre_delete
+from django.db.models.signals import pre_delete, post_delete
 import datetime
 from product.models import Product
 
 from decimal import Decimal
-
 CURRENCY = settings.CURRENCY
 
 
@@ -98,16 +97,13 @@ class OrderItem(models.Model):
         return f'{self.price} {CURRENCY}'
 
 
-@receiver(pre_delete, sender=Order)
-def delete_order(sender, instance, **kwargs):
-    items = instance.order_items.all()
-    for item in items:
-        item.delete()
 
 
-@receiver(pre_delete, sender=OrderItem)
+
+@receiver(post_delete, sender=OrderItem)
 def delete_order_item(sender, instance, **kwargs):
     product = instance.product
     product.qty += instance.qty
     product.save()
+    instance.order.save()
 
