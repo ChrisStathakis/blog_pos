@@ -3,7 +3,7 @@ from django.db.models import Sum
 from django.conf import settings
 from django.urls import reverse
 from django.dispatch import receiver
-from django.db.models.signals import pre_delete, post_delete
+from django.db.models.signals import post_delete
 import datetime
 from product.models import Product
 
@@ -26,7 +26,7 @@ class Order(models.Model):
     final_value = models.DecimalField(default=0.00, decimal_places=2, max_digits=20)
     is_paid = models.BooleanField(default=True)
     objects = models.Manager()
-    broswer = OrderManager()
+    browser = OrderManager()
 
     class Meta:
         ordering = ['-date']
@@ -95,9 +95,6 @@ class OrderItem(models.Model):
 
     def tag_price(self):
         return f'{self.price} {CURRENCY}'
-
-
-
 
 
 @receiver(post_delete, sender=OrderItem)

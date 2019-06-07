@@ -19,12 +19,8 @@ import datetime
 @method_decorator(staff_member_required, name='dispatch')
 class HomepageView(ListView):
     template_name = 'index.html'
-    paginate_by = 50
     model = Order
-
-    def get_queryset(self):
-        qs = Order.objects.all()[:10]
-        return qs
+    queryset = Order.objects.all()[:10]
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -51,6 +47,8 @@ def auto_create_order_view(request):
         date=datetime.datetime.now()
 
     )
+    new_order.title = f'Order - {new_order.id}'
+    new_order.save()
     return redirect(new_order.get_edit_url())
 
 
@@ -58,6 +56,7 @@ def auto_create_order_view(request):
 class OrderListView(ListView):
     template_name = 'list.html'
     model = Order
+    paginate_by = 50
 
     def get_queryset(self):
         qs = Order.objects.all()
@@ -95,14 +94,13 @@ class OrderUpdateView(UpdateView):
     model = Order
     template_name = 'order_update.html'
     form_class = OrderEditForm
-    success_url = reverse_lazy('homepage')
 
     def get_success_url(self):
         return reverse('update_order', kwargs={'pk': self.object.id})
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        instance = get_object_or_404(Order, pk=self.kwargs['pk'])
+        instance = self.object
         qs_p = Product.objects.filter(active=True)[:12]
         products = ProductTable(qs_p)
         order_items = OrderItemTable(instance.order_items.all())
@@ -189,7 +187,6 @@ def ajax_modify_order_item(request, pk, action):
 def ajax_search_products(request, pk):
     instance = get_object_or_404(Order, id=pk)
     q = request.GET.get('q', None)
-    print(q)
     products = Product.broswer.active().filter(title__startswith=q) if q else Product.broswer.active()
     products = products[:12]
     products = ProductTable(products)

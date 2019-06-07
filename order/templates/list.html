@@ -104,17 +104,8 @@
 {% block extra_js %}
     <script src="{% static 'assets/libs/bootstrap-datepicker/dist/js/bootstrap-datepicker.min.js' %}"></script>
 <script>
-        /*colorpicker*/
+
         $('.demo').each(function() {
-        //
-        // Dear reader, it's actually very easy to initialize MiniColors. For example:
-        //
-        //  $(selector).minicolors();
-        //
-        // The way I've done it below is just for the demo, so don't get confused
-        // by it. Also, data- attributes aren't supported at this time...they're
-        // only used for this demo.
-        //
         $(this).minicolors({
                 control: $(this).attr('data-control') || 'hue',
                 position: $(this).attr('data-position') || 'bottom left',
