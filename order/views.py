@@ -158,10 +158,12 @@ def ajax_modify_order_item(request, pk, action):
     order_item = get_object_or_404(OrderItem, id=pk)
     product = order_item.product
     instance = order_item.order
-    if action == 'remove':
-        order_item.qty -= 1
-        product.qty += 1
-        if order_item.qty < 1: order_item.qty = 1
+    if action == 'remove': 
+        if order_item.qty <= 1:  # Can't change stock_qty when trying to minus qty on orderItem.
+            order_item.qty = 1
+        else:
+            product.qty += 1
+            order_item.qty -= 1
     if action == 'add':
         order_item.qty += 1
         product.qty -= 1
