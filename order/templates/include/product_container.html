@@ -3,3 +3,20 @@
 <div class="table-responsive">
     {% render_table products %}
 </div>
+
+<script type="text/javascript">
+    $('.add_button').click(function (evt) {
+        evt.preventDefault();
+        const btn = $(this);
+        const url = btn.attr('data-href');
+        $.ajax({
+            method: 'GET',
+            dataType: 'json',
+            url: url,
+            success : function (data) {
+                $('#order_item_container').html(data.result)
+            }
+        })
+    });
+    
+</script>
